@@ -1,9 +1,8 @@
 """
-리뷰 요청, 응답 DTO
+리뷰 요청, 응답 DTO와 답글 응답 DTO
 
 - 요청 DTO에 Field 조건을 적어 두면, 조건에 맞지 않는 요청은 핸들러를 실행하지 않고 422로 응답한다.
 - 엔티티(Review)를 그대로 내보내지 않고 응답 DTO로 바꿔서 응답한다.
-(답글 응답 DTO는 3단계에서 이 파일에 추가한다)
 """
 
 from datetime import datetime
@@ -44,3 +43,14 @@ class ReviewResponse(CamelModel):
             content=review.content,
             created_at=review.created_at,
         )
+
+
+class ReplyResponse(CamelModel):
+    """사장님 답글 초안 응답 DTO. POST /api/reviews/{review_id}/reply의 응답이다."""
+
+    # 어떤 리뷰에 대한 답글인지
+    review_id: int
+    # LLM이 만든 답글 초안
+    reply: str
+    # 응답한 모델 이름. 가짜 LLM 클라이언트면 "fake-llm"
+    model: str
