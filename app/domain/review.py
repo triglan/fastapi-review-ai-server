@@ -21,3 +21,5 @@ class Review:
     content: str
     # 작성 시각. 값을 주지 않으면 객체를 만드는 순간의 현재 시각이 들어간다.
     created_at: datetime = field(default_factory=datetime.now)
+    # 사장님 답글. 답글 API로 만들기 전에는 None
+    reply: str | None = None

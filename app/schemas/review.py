@@ -32,6 +32,8 @@ class ReviewResponse(CamelModel):
     rating: int
     content: str
     created_at: datetime
+    # 답글 API로 저장한 사장님 답글. 아직 없으면 null
+    reply: str | None
 
     @classmethod
     def from_review(cls, review: Review) -> ReviewResponse:
@@ -42,6 +44,7 @@ class ReviewResponse(CamelModel):
             rating=review.rating,
             content=review.content,
             created_at=review.created_at,
+            reply=review.reply,
         )
 
 

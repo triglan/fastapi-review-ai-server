@@ -67,5 +67,10 @@ class ReplyService:
         # 3. await로 LLM을 호출한다. 응답을 기다리는 동안 이벤트 루프는 다른 요청을 처리한다.
         reply = await self.llm_client.ask_async(INSTRUCTIONS, prompt)
 
-        # 4. 응답 DTO로 반환한다.
+        # 4. 생성한 답글을 리뷰에 저장한다. (같은 번호라서 save()가 덮어쓴다)
+        #    LLM 호출이 성공했을 때만 여기까지 온다. 실패(502)하면 저장하지 않는다.
+        review.reply = reply
+        self.repository.save(review)
+
+        # 5. 응답 DTO로 반환한다.
         return ReplyResponse(review_id=review.review_id, reply=reply, model=self.llm_client.model)
