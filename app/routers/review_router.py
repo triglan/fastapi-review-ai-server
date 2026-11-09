@@ -72,3 +72,23 @@ async def create_reply(review_id: int, service: ReplyServiceDep) -> ReplyRespons
 #
 # 요청 : POST /api/reviews/99/reply -> 404
 # OpenAI 키가 틀렸을 때            -> 502 {"code": "ERROR_CODE_00011", "description": "AI 응답 실패", ...}
+
+
+# 4. 사장님 답글 초안 생성 (def, 비교용)
+# 3번과 같은 일을 동기로 한다. def 핸들러라서 이벤트 루프가 아니라 스레드 풀에서 실행되고,
+# LLM 응답을 기다리는 동안 그 스레드 하나가 통째로 멈춘다.
+@router.post("/{review_id}/reply/sync", summary="사장님 답글 초안 생성 (sync, 비교용)")
+def create_reply_sync(review_id: int, service: ReplyServiceDep) -> ReplyResponse:
+    log("reply-sync", f"요청 받음 reviewId={review_id}")
+    response = service.create_reply_sync(review_id)
+    log("reply-sync", "응답 보냄")
+    return response
+
+# 터미널 : 22:30:01 [reply-sync] 요청 받음 reviewId=1 (스레드: AnyIO worker thread)
+#
+# [Postman 탭 두 개로 비교하기]
+# .env에 FAKE_LLM=true, FAKE_LLM_DELAY_SECONDS=5, THREAD_POOL_SIZE=1을 적고 서버를 다시 실행한다.
+# 탭 A의 Send를 누른 직후 탭 B의 Send를 누른다.
+# - 둘 다 /reply/sync : A는 5초, B는 약 10초. 스레드가 하나뿐이라 B는 A가 끝날 때까지 시작하지 못한다.
+# - 둘 다 /reply      : 둘 다 약 5초. await로 기다리는 동안 이벤트 루프가 B를 받는다.
+# 확인했으면 .env를 원래대로 되돌린다.

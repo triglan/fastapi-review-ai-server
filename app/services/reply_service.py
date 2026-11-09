@@ -74,3 +74,25 @@ class ReplyService:
 
         # 5. 응답 DTO로 반환한다.
         return ReplyResponse(review_id=review.review_id, reply=reply, model=self.llm_client.model)
+
+    def create_reply_sync(self, review_id: int) -> ReplyResponse:
+        """
+        create_reply와 같은 일을 동기로 한다. (async 버전과 비교하기 위한 메서드)
+
+        다른 곳은 세 군데뿐이다 : async def -> def / ask_async -> ask / await 없음
+        응답이 올 때까지 이 메서드를 실행한 스레드가 통째로 멈춰서 기다린다.
+        """
+
+        review = self.repository.find_by_id(review_id)
+        if review is None:
+            raise ReviewNotFoundError(review_id)
+
+        prompt = build_prompt(review)
+
+        # await 없이 동기 메서드를 호출한다.
+        reply = self.llm_client.ask(INSTRUCTIONS, prompt)
+
+        review.reply = reply
+        self.repository.save(review)
+
+        return ReplyResponse(review_id=review.review_id, reply=reply, model=self.llm_client.model)

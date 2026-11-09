@@ -7,6 +7,7 @@ uv run fastapi dev 를 실행하면 pyproject.toml의 entrypoint("app.main:app")
 
 from contextlib import asynccontextmanager
 
+import anyio.to_thread
 from fastapi import FastAPI
 
 from app.clients.llm_client import FakeLlmClient, OpenAiLlmClient
@@ -31,10 +32,16 @@ async def lifespan(app: FastAPI):
         print(f"[lifespan] OpenAI 클라이언트를 사용한다 (model={settings.openai_model})")
         app.state.llm_client = OpenAiLlmClient(settings)
 
-    # 2. 이 지점에서 멈춰 있는 동안 서버가 요청을 받는다.
+    # 2. 실험용 : 설정에 THREAD_POOL_SIZE가 있으면 def 핸들러를 실행하는 스레드 풀의 크기를 바꾼다.
+    #    (기본 40개. 1로 줄이면 def 핸들러가 한 번에 하나씩만 실행되는 것을 볼 수 있다)
+    if settings.thread_pool_size is not None:
+        anyio.to_thread.current_default_thread_limiter().total_tokens = settings.thread_pool_size
+        print(f"[lifespan] 스레드 풀 크기 : {settings.thread_pool_size}개")
+
+    # 3. 이 지점에서 멈춰 있는 동안 서버가 요청을 받는다.
     yield
 
-    # 3. 서버 종료 : OpenAI 서버와의 연결을 닫는다.
+    # 4. 서버 종료 : OpenAI 서버와의 연결을 닫는다.
     await app.state.llm_client.close()
 
 
