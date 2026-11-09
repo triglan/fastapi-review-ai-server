@@ -28,11 +28,16 @@ INSTRUCTIONS = (
 
 def build_prompt(review: Review) -> str:
     """저장된 리뷰로 LLM에 보낼 입력(프롬프트)을 만든다."""
-    return (
+    prompt = (
         f"손님 이름: {review.customer_name}\n"
         f"별점: {review.rating}점 (5점 만점)\n"
-        f"리뷰 내용: {review.content}"
+        f"리뷰 내용: {review.content}\n\n"
     )
+    if review.rating <= 2:
+        prompt += "[말투] 불만족한 손님이다. 답글은 반드시 '죄송합니다'라는 말로 시작하고, 개선 약속을 포함한다."
+    else:
+        prompt += "[말투] 만족한 손님이다. 답글은 반드시 '감사합니다'라는 말로 시작하고, 다시 방문해 달라고 한다."
+    return prompt
 
 
 class ReplyService:
