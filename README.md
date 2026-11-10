@@ -1,6 +1,6 @@
-# FastAPI 리뷰 프로젝트
+# FastAPI 보드게임 카페 리뷰 프로젝트
 
-리뷰를 등록·조회하고, 저장된 리뷰로 LLM에게 사장님 답글 초안을 받는 FastAPI 서버입니다.
+보드게임 카페 방문 경험에 대한 리뷰를 등록·조회하고, 저장된 리뷰로 LLM에게 사장님 답글 초안을 받는 FastAPI 서버입니다.
 
 ## 실행 방법
 
@@ -23,15 +23,21 @@ uv run fastapi dev
 | POST | `/api/reviews/{review_id}/reply` | `async def` | 사장님 답글 초안 생성 | 200, 404, 502 |
 | POST | `/api/reviews/{review_id}/reply/sync` | `def` | 답글 초안 생성 (동기, 비교용) | 200, 404, 502 |
 
-## 과제 체크리스트
+### 리뷰 등록 요청 예시
 
-- [x] `uv run fastapi dev`로 실행, `/docs`와 Postman에서 API 호출
-- [x] 리뷰 등록 201, 잘못된 값 422, 없는 리뷰 404
-- [x] 저장된 리뷰 내용으로 답글 응답, 터미널 스레드 이름 `MainThread`
-- [x] OpenAI 호출 실패 시 502
+```json
+{
+  "customerName": "김민수",
+  "rating": 5,
+  "content": "스플렌더와 카탄을 즐겼어요. 규칙 설명도 친절해서 좋았습니다."
+}
+```
 
-**심화**
-
-- [x] 별점 2 이하면 "죄송합니다"로 시작
-- [x] 생성한 답글을 리뷰에 저장, 리뷰 조회 응답에 표시
-- [x] 답글 API 동기 버전 추가 (`.env`에 `FAKE_LLM=true`, `FAKE_LLM_DELAY_SECONDS=5`, `THREAD_POOL_SIZE=1`로 두 버전 비교)
+### 사장님 답글 예시
+```json
+{
+  "reviewId": 1,
+  "reply": "감사합니다, 김민수님! 스플렌더와 카탄을 즐겁게 플레이하시고 규칙 설명도 친절하게 느껴 주셔서 기쁩니다. 좋은 시간을 보내셨다니 저희도 보람을 느껴요. 다음에도 편하게 놀러 와 주세요!",
+  "model": "gpt-6-luna"
+}
+```

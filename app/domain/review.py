@@ -11,15 +11,9 @@ from datetime import datetime
 
 @dataclass
 class Review:
-    # 리뷰 번호(PK). 새 리뷰는 0으로 만들고, ReviewRepository가 저장할 때 1, 2, 3 ... 번호를 붙인다.
     review_id: int
-    # 손님 이름
     customer_name: str
-    # 별점 (1 ~ 5)
     rating: int
-    # 리뷰 내용
     content: str
-    # 작성 시각. 값을 주지 않으면 객체를 만드는 순간의 현재 시각이 들어간다.
     created_at: datetime = field(default_factory=datetime.now)
-    # 사장님 답글. 답글 API로 만들기 전에는 None
     reply: str | None = None

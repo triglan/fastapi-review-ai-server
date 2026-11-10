@@ -31,9 +31,9 @@ def register_review(request: ReviewCreateRequest, service: ReviewServiceDep) -> 
     return service.register_review(request)
 
 # 요청 : POST /api/reviews
-# {"customerName": "최신규", "rating": 4, "content": "깔끔하고 맛있어요"}
+# {"customerName": "최신규", "rating": 4, "content": "친구들과 재미있게 즐겼어요"}
 # 응답 : 201
-# {"reviewId": 4, "customerName": "최신규", "rating": 4, "content": "깔끔하고 맛있어요", "createdAt": "..."}
+# {"reviewId": 4, "customerName": "최신규", "rating": 4, "content": "친구들과 재미있게 즐겼어요", "createdAt": "...", "reply": null}
 #
 # 요청 : POST /api/reviews {"customerName": "최신규", "rating": 6, "content": "..."}
 # 응답 : 422 (loc: ["body", "rating"], 5 이하여야 한다)
